@@ -49,7 +49,7 @@ public class ResponseSupport {
                           .build())
             .addField(
                       FieldSpec.builder(Object.class, "entity", Modifier.PRIVATE, Modifier.FINAL)
-                          .build());;
+                          .build());
 
     builder.addMethod(MethodSpec.constructorBuilder()
         .addParameter(ParameterSpec.builder(Response.class, "delegate").build())

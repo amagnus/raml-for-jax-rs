@@ -52,7 +52,7 @@ public class IndentedAppendableEmitterTest {
 
 
     // StringWriter appendable = new StringWriter();
-    // IndentedAppendableEmitter emitter = IndentedAppendableEmitter.create(IndentedAppendable.forNoSpaces(2, appendable));
+    // IndentedAppendableEmitter emitter = IndentedAppendableEmitter.create(IndentedAppendable.forNumSpaces(2, appendable));
     IndentedAppendableEmitter emitter = IndentedAppendableEmitter.create(mockAppendable);
 
     emitter.emit(mockRamlApi);

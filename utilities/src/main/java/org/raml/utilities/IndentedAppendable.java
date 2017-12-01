@@ -43,7 +43,7 @@ public class IndentedAppendable {
     currentAppendable = appendable;
   }
 
-  public static IndentedAppendable forNoSpaces(int noSpaces, Appendable appendable) {
+  public static IndentedAppendable forNumSpaces(int noSpaces, Appendable appendable) {
     checkArgument(noSpaces >= 0);
     checkNotNull(appendable);
 

@@ -139,12 +139,12 @@ public class V10GMethod implements GMethod {
 
   @Override
   public boolean equals(Object obj) {
-
-    if (obj == null || !(obj instanceof V10GMethod)) {
-
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof V10GMethod)) {
       return false;
     }
-
     V10GMethod method = (V10GMethod) obj;
     return method.v10GResource.resourcePath().equals(v10GResource.resourcePath())
         && method.method().equals(method());

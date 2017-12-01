@@ -81,6 +81,21 @@ public class OneStopShop {
     emitter.emit(ramlApi);
   }
 
+  @SuppressWarnings("Duplicates")
+  public RamlApi parseJaxRsAndOutputRamlTwo() throws JaxRsToRamlConversionException,
+      JaxRsParsingException, RamlEmissionException {
+
+    SourceParser sourceParser =
+        sourceCodeRoot.isSet() ? SourceParsers.usingRoasterParser(sourceCodeRoot.get())
+            : SourceParsers.nullParser();
+
+    JaxRsApplication application =
+        JaxRsParsers.usingJerseyWith(jaxRsUrl, sourceParser, ramlConfiguration.getTranslatedAnnotations()).parse();
+
+    RamlApi ramlApi = JaxRsToRamlConverter.create().convert(ramlConfiguration, application);
+    return ramlApi;
+  }
+
   public static Builder builder() {
     return new Builder();
   }

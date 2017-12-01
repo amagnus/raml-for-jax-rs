@@ -52,7 +52,7 @@ public class FileEmitter implements Emitter {
     }
 
     try (PrintWriter writer = printWriterOf(filePath)) {
-      IndentedAppendable appendable = IndentedAppendable.forNoSpaces(4, writer);
+      IndentedAppendable appendable = IndentedAppendable.forNumSpaces(4, writer);
 
       IndentedAppendableEmitter innerEmitter = IndentedAppendableEmitter.create(appendable);
 

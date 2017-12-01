@@ -60,7 +60,7 @@ public class IndentedAppendableTest {
   @Test
   public void testAppendList() {
     StringBuffer buffer = new StringBuffer();
-    IndentedAppendable appendable = IndentedAppendable.forNoSpaces(1, buffer);
+    IndentedAppendable appendable = IndentedAppendable.forNumSpaces(1, buffer);
     try {
       appendable.appendList("test", "text", "text2", "#text", "te,xt");
     } catch (IOException e) {
@@ -72,7 +72,7 @@ public class IndentedAppendableTest {
 
   public void assertStringIsCorrectlyEscaped(String tag, String value, String expected) {
     StringBuffer buffer = new StringBuffer();
-    IndentedAppendable appendable = IndentedAppendable.forNoSpaces(1, buffer);
+    IndentedAppendable appendable = IndentedAppendable.forNumSpaces(1, buffer);
     try {
       appendable.appendEscapedLine(tag, value);
     } catch (IOException e) {

@@ -55,12 +55,16 @@ public class RamlScanner {
     handle(new FileInputStream(resource), resource.getAbsoluteFile().getParentFile().getAbsolutePath() + "/");
   }
 
+  public RamlModelResult handleResult(File resource) throws IOException, GenerationException {
+    return handleResult(new FileInputStream(resource), resource.getAbsoluteFile().getParentFile().getAbsolutePath() + "/");
+  }
+
   public void handle(URL resourceName) throws IOException, GenerationException {
 
     handle(resourceName.openStream(), ".");
   }
 
-  public void handle(InputStream stream, String directory) throws GenerationException, IOException {
+  public void handle(InputStream stream, String directory) throws IOException {
 
     RamlModelResult result =
         new RamlModelBuilder().buildApi(new InputStreamReader(stream), directory);
@@ -73,6 +77,15 @@ public class RamlScanner {
     } else {
       handle(result.getApiV10());
     }
+  }
+
+  public RamlModelResult handleResult(InputStream stream, String directory) {
+    RamlModelResult result =
+        new RamlModelBuilder().buildApi(new InputStreamReader(stream), directory);
+    if (result.hasErrors()) {
+      throw new GenerationException(result.getValidationResults());
+    }
+    return result;
   }
 
   public void handle(org.raml.v2.api.model.v10.api.Api api) throws IOException {
@@ -95,11 +108,11 @@ public class RamlScanner {
   }
 
 
-  public void handle(org.raml.v2.api.model.v08.api.Api api) throws IOException {
+  public void handle(org.raml.v2.api.model.v08.api.Api apiV08) throws IOException {
 
     GAbstractionFactory factory = new GAbstractionFactory();
     V08TypeRegistry registry = new V08TypeRegistry();
-    V08Finder typeFinder = new V08Finder(api, factory, registry);
+    V08Finder typeFinder = new V08Finder(apiV08, factory, registry);
     CurrentBuild build = new CurrentBuild(typeFinder, null);
     configuration.setupBuild(build);
 
@@ -109,7 +122,7 @@ public class RamlScanner {
 
 
     // handle resources.
-    for (org.raml.v2.api.model.v08.resources.Resource resource : api.resources()) {
+    for (org.raml.v2.api.model.v08.resources.Resource resource : apiV08.resources()) {
       resourceHandler.handle(typeFinder.globalSchemas(), registry, resource);
     }
 

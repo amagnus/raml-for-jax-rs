@@ -15,6 +15,12 @@
  */
 package org.raml.jaxrs.codegen.maven;
 
+import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -26,21 +32,14 @@ import org.apache.maven.project.MavenProject;
 import org.jsonschema2pojo.AnnotationStyle;
 import org.raml.jaxrs.generator.Configuration;
 import org.raml.jaxrs.generator.DiffingUtil;
-import org.raml.jaxrs.generator.RamlScanner;
 import org.raml.jaxrs.generator.builders.extensions.resources.TrialResourceClassExtension;
 import org.raml.jaxrs.generator.extension.resources.GlobalResourceExtension;
 import org.raml.jaxrs.generator.extension.types.LegacyTypeExtension;
 import org.raml.jaxrs.generator.extension.types.TypeExtension;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-
-import static org.apache.maven.plugins.annotations.ResolutionScope.COMPILE_PLUS_RUNTIME;
-
-@Mojo(name = "generate", requiresProject = true, threadSafe = false, requiresDependencyResolution = COMPILE_PLUS_RUNTIME,
+@Mojo(name = "diff", requiresProject = true, threadSafe = false, requiresDependencyResolution = COMPILE_PLUS_RUNTIME,
     defaultPhase = LifecyclePhase.GENERATE_SOURCES)
-public class RamlJaxrsCodegenMojo extends AbstractMojo {
+public class RamlJaxrsDiffMojo extends AbstractMojo {
 
   @Parameter(defaultValue = "${project}")
   private MavenProject project;
@@ -64,7 +63,6 @@ public class RamlJaxrsCodegenMojo extends AbstractMojo {
   @Parameter(property = "ramlFile", required = true)
   private File ramlFile;
 
-
   /**
    * Resource package name used for generated Java classes.
    */
@@ -83,14 +81,12 @@ public class RamlJaxrsCodegenMojo extends AbstractMojo {
   @Parameter(property = "supportPackage")
   private String supportPackage;
 
-
   /**
    * Whether to empty the output directory before generation occurs, to clear out all source files that have been generated
    * previously.
    */
   @Parameter(property = "removeOldOutput", defaultValue = "false")
   private boolean removeOldOutput;
-
 
   /**
    * Annotate raml 1.0 types with either jackson, jaxb or gson
@@ -112,13 +108,13 @@ public class RamlJaxrsCodegenMojo extends AbstractMojo {
   private Map<String, String> jsonMapperConfiguration;
 
   /**
-   * The name of a generator extension class (implements org.raml.jaxrs.generator.extension.resources.GlobalResourceExtension)
+   * The name of a generator extension class (implements org.raml.jaxrs.generator.extension.resources .GlobalResourceExtension)
    */
   @Parameter(property = "resourceCreationExtension")
   private String resourceCreationExtension;
 
   /**
-   * The name of a generator extension class (implements org.raml.jaxrs.generator.extension.resources.GlobalResourceExtension)
+   * The name of a generator extension class (implements org.raml.jaxrs.generator.extension.resources .GlobalResourceExtension)
    */
   @Parameter(property = "resourceCreationExtension")
   private String resourceFinishExtension;
@@ -129,6 +125,12 @@ public class RamlJaxrsCodegenMojo extends AbstractMojo {
   @Parameter(property = "typeExtensions")
   private String[] typeExtensions;
 
+  @Parameter(property = "sourceDirectory",
+      defaultValue = "${project.build.sourceDirectory}")
+  private File sourceDirectory;
+
+  @Parameter(property = "jaxrs.to.raml.input", defaultValue = "${project.build.outputDirectory}")
+  private File input;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
@@ -162,19 +164,23 @@ public class RamlJaxrsCodegenMojo extends AbstractMojo {
       configuration.setResourcePackage(resourcePackage);
       configuration.setSupportPackage(supportPackage);
       configuration.setOutputDirectory(outputDirectory);
+      configuration.setInputPath(input);
+      configuration.setSourceDirectory(sourceDirectory);
       configuration.setJsonMapper(AnnotationStyle.valueOf(jsonMapper.toUpperCase()));
       configuration.setJsonMapperConfiguration(jsonMapperConfiguration);
       configuration.setTypeConfiguration(generateTypesWith);
       if (resourceCreationExtension != null) {
 
-        Class<GlobalResourceExtension> c = (Class<GlobalResourceExtension>) Class.forName(resourceCreationExtension);
+        Class<GlobalResourceExtension> c = (Class<GlobalResourceExtension>) Class.forName
+            (resourceCreationExtension);
         configuration.defaultResourceCreationExtension(c);
 
       }
 
       if (resourceFinishExtension != null) {
 
-        Class<GlobalResourceExtension> c = (Class<GlobalResourceExtension>) Class.forName(resourceFinishExtension);
+        Class<GlobalResourceExtension> c = (Class<GlobalResourceExtension>) Class.forName
+            (resourceFinishExtension);
         configuration.defaultResourceFinishExtension(c);
       }
 
@@ -184,11 +190,13 @@ public class RamlJaxrsCodegenMojo extends AbstractMojo {
           if (c == null) {
             throw new MojoExecutionException("typeExtension " + className
                 + " cannot be loaded."
-                + "Have you installed the correct dependency in the plugin configuration?");
+                + "Have you installed the correct dependency in the " +
+                "plugin configuration?");
           }
           if (!(c.newInstance() instanceof TypeExtension)) {
             throw new MojoExecutionException("typeExtension " + className
-                + " does not implement" + TrialResourceClassExtension.class.getPackage() + "."
+                + " does not implement" +
+                TrialResourceClassExtension.class.getPackage() + "."
                 + TrialResourceClassExtension.class.getName());
 
           }
@@ -201,15 +209,16 @@ public class RamlJaxrsCodegenMojo extends AbstractMojo {
       throw new MojoExecutionException("Failed to configure plug-in", e);
     }
 
-
     project.addCompileSourceRoot(outputDirectory.getPath());
 
     File currentSourcePath = null;
 
     try {
-      RamlScanner scanner = new RamlScanner(configuration);
-      scanner.handle(ramlFile);
-    } catch (final Exception e) {
+      getLog().info("Starting diff mode");
+      DiffingUtil diff = new DiffingUtil();
+      diff.startDiff(configuration, ramlFile);
+
+    } catch (Exception e) {
       throw new MojoExecutionException("Error generating Java classes from: " + currentSourcePath, e);
     }
   }

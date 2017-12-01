@@ -49,7 +49,7 @@ public class JaxRsToRamlConverter {
     StringBuilder builder = new StringBuilder();
 
     try {
-      appendApplication(IndentedAppendable.forNoSpaces(2, builder), application);
+      appendApplication(IndentedAppendable.forNumSpaces(2, builder), application);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

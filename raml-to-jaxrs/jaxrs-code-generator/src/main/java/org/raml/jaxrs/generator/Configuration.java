@@ -34,6 +34,8 @@ public class Configuration {
 
   private String modelPackage;
   private File outputDirectory;
+  private File inputPath;
+  private File sourceDirectory;
   private AnnotationStyle jsonMapper;
   private Map<String, String> jsonMapperConfiguration = new HashMap<>();
   private String[] typeConfiguration = new String[0];
@@ -113,8 +115,6 @@ public class Configuration {
     configuration.setResourcePackage("resource");
     configuration.setSupportPackage("support");
     configuration.setOutputDirectory(new File("."));
-    // configuration.setJsonMapper(AnnotationStyle.valueOf(jsonMapper.toUpperCase()));
-    // configuration.setJsonMapperConfiguration(jsonMapperConfiguration);
     configuration.setTypeConfiguration(new String[] {"jackson"});
 
     return configuration;
@@ -144,5 +144,21 @@ public class Configuration {
 
   public Class<GlobalResourceExtension> getDefaultFinishExtension() {
     return defaultFinishExtension;
+  }
+
+  public File getSourceDirectory() {
+    return sourceDirectory;
+  }
+
+  public void setSourceDirectory(File sourceDirectory) {
+    this.sourceDirectory = sourceDirectory;
+  }
+
+  public File getInputPath() {
+    return inputPath;
+  }
+
+  public void setInputPath(File inputPath) {
+    this.inputPath = inputPath;
   }
 }
