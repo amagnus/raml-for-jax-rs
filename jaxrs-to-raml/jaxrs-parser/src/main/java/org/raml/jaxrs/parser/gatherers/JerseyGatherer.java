@@ -60,6 +60,7 @@ public class JerseyGatherer implements JaxRsClassesGatherer {
 
   @Override
   public Set<Class<?>> jaxRsClasses() {
+    System.out.println("resourceConfig.getClasses() size: " + resourceConfig.getClasses().size());
     return resourceConfig.getClasses();
   }
 

@@ -18,6 +18,10 @@ package org.raml.jaxrs.generator;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.util.HashSet;
+
+import javax.annotation.Nullable;
 
 import org.apache.commons.io.FilenameUtils;
 import org.raml.api.RamlApi;
@@ -27,6 +31,9 @@ import org.raml.jaxrs.raml.core.DefaultRamlConfiguration;
 import org.raml.jaxrs.raml.core.OneStopShop;
 import org.raml.utilities.IndentedAppendable;
 import org.raml.v2.api.RamlModelResult;
+
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 
 public class DiffingUtil {
 
@@ -40,7 +47,9 @@ public class DiffingUtil {
       String applicationName =
           FilenameUtils.removeExtension(raml.getName());
       RamlConfiguration ramlConfiguration =
-          DefaultRamlConfiguration.forApplication(applicationName, null);
+          DefaultRamlConfiguration.forApplication(applicationName, new HashSet<Class<? extends Annotation>>());
+
+      System.out.println("sourceCodeRoot: " + config.getSourceDirectory().toPath());
 
       OneStopShop oneStopShop = OneStopShop.builder()
           .withJaxRsClassesRoot(config.getInputPath().toPath())
@@ -50,9 +59,13 @@ public class DiffingUtil {
           .build();
 
       RamlApi api = oneStopShop.parseJaxRsAndOutputRamlTwo();
+      System.out.println("RamlApi resources size: " + api.getResources().size());
 
       StringBuilder builder = new StringBuilder();
-      IndentedAppendableEmitter.create(IndentedAppendable.forNumSpaces(2, builder));
+      IndentedAppendableEmitter emitter = IndentedAppendableEmitter.create(IndentedAppendable.forNumSpaces(2,
+                                                                                                           builder));
+      emitter.emit(api);
+      System.out.println(builder.toString());
 
       InputStream is = new ByteArrayInputStream(builder.toString().getBytes());
       RamlModelResult compared = scan.handleResult(is, config.getOutputDirectory().getAbsolutePath());

@@ -157,23 +157,23 @@ public class RamlJaxrsDiffMojo extends AbstractMojo {
       }
     }
 
-    final Configuration configuration = new Configuration();
+    final Configuration config = new Configuration();
 
     try {
-      configuration.setModelPackage(modelPackage);
-      configuration.setResourcePackage(resourcePackage);
-      configuration.setSupportPackage(supportPackage);
-      configuration.setOutputDirectory(outputDirectory);
-      configuration.setInputPath(input);
-      configuration.setSourceDirectory(sourceDirectory);
-      configuration.setJsonMapper(AnnotationStyle.valueOf(jsonMapper.toUpperCase()));
-      configuration.setJsonMapperConfiguration(jsonMapperConfiguration);
-      configuration.setTypeConfiguration(generateTypesWith);
+      config.setModelPackage(modelPackage);
+      config.setResourcePackage(resourcePackage);
+      config.setSupportPackage(supportPackage);
+      config.setOutputDirectory(outputDirectory);
+      config.setInputPath(input);
+      config.setSourceDirectory(sourceDirectory);
+      config.setJsonMapper(AnnotationStyle.valueOf(jsonMapper.toUpperCase()));
+      config.setJsonMapperConfiguration(jsonMapperConfiguration);
+      config.setTypeConfiguration(generateTypesWith);
       if (resourceCreationExtension != null) {
 
         Class<GlobalResourceExtension> c = (Class<GlobalResourceExtension>) Class.forName
             (resourceCreationExtension);
-        configuration.defaultResourceCreationExtension(c);
+        config.defaultResourceCreationExtension(c);
 
       }
 
@@ -181,7 +181,7 @@ public class RamlJaxrsDiffMojo extends AbstractMojo {
 
         Class<GlobalResourceExtension> c = (Class<GlobalResourceExtension>) Class.forName
             (resourceFinishExtension);
-        configuration.defaultResourceFinishExtension(c);
+        config.defaultResourceFinishExtension(c);
       }
 
       if (typeExtensions != null) {
@@ -201,7 +201,7 @@ public class RamlJaxrsDiffMojo extends AbstractMojo {
 
           }
 
-          configuration.getTypeExtensions().add((LegacyTypeExtension) c.newInstance());
+          config.getTypeExtensions().add((LegacyTypeExtension) c.newInstance());
         }
       }
 
@@ -216,7 +216,7 @@ public class RamlJaxrsDiffMojo extends AbstractMojo {
     try {
       getLog().info("Starting diff mode");
       DiffingUtil diff = new DiffingUtil();
-      diff.startDiff(configuration, ramlFile);
+      diff.startDiff(config, ramlFile);
 
     } catch (Exception e) {
       throw new MojoExecutionException("Error generating Java classes from: " + currentSourcePath, e);

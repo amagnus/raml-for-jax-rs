@@ -85,12 +85,15 @@ public class OneStopShop {
   public RamlApi parseJaxRsAndOutputRamlTwo() throws JaxRsToRamlConversionException,
       JaxRsParsingException, RamlEmissionException {
 
+    System.out.println("sourceCodeRoot.isSet(): " + sourceCodeRoot.isSet());
     SourceParser sourceParser =
         sourceCodeRoot.isSet() ? SourceParsers.usingRoasterParser(sourceCodeRoot.get())
             : SourceParsers.nullParser();
 
     JaxRsApplication application =
-        JaxRsParsers.usingJerseyWith(jaxRsUrl, sourceParser, ramlConfiguration.getTranslatedAnnotations()).parse();
+        JaxRsParsers.usingJerseyWith(jaxRsUrl, sourceParser, ramlConfiguration.getTranslatedAnnotations())
+            .parse();
+    System.out.println("OneStopShop resources size: " + application.getResources().size());
 
     RamlApi ramlApi = JaxRsToRamlConverter.create().convert(ramlConfiguration, application);
     return ramlApi;
